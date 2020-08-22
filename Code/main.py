@@ -22,7 +22,7 @@ def tensor_to_image(tensor):
 
 
 content_path = "abandoned.jpg"
-style_path = "../Style/absmount.jpg"
+style_path = "absmount.jpg"
 
 def load_img(path_to_img):
   max_dim = 512
@@ -63,3 +63,4 @@ hub_module = hub.load('https://tfhub.dev/google/magenta/arbitrary-image-stylizat
 stylized_image = hub_module(tf.constant(content_image), tf.constant(style_image))[0]
 tensor_to_image(stylized_image)
 
+plt.savefig("output.png")

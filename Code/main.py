@@ -22,8 +22,8 @@ def tensor_to_image(tensor):
     return PIL.Image.fromarray(tensor)
 
 
-content_path = os.listdir("../Content")
-style_path = os.listdir("../Style")
+content_path = (os.listdir("../Content"))
+style_path = (os.listdir("../Style"))
 
 def load_img(path_to_img):
   max_dim = 512
@@ -48,6 +48,10 @@ def imshow(image, title=None):
   plt.imshow(image)
   if title:
     plt.title(title)
+
+
+content_image = load_img(content_path)
+style_image = load_img(style_path)
 
 plt.subplot(1, 2, 1)
 imshow(content_path, 'Content Image')

@@ -12,7 +12,6 @@ import PIL.Image
 import time
 import functools
 
-
 def tensor_to_image(tensor):
     tensor = tensor * 255
     tensor = np.array(tensor, dtype=np.uint8)
@@ -22,8 +21,8 @@ def tensor_to_image(tensor):
     return PIL.Image.fromarray(tensor)
 
 
-content_path = (os.listdir("../Content"))
-style_path = (os.listdir("../Style"))
+content_path = "abandoned.jpg"
+style_path = "../Style/absmount.jpg"
 
 def load_img(path_to_img):
   max_dim = 512
@@ -50,14 +49,14 @@ def imshow(image, title=None):
     plt.title(title)
 
 
-content_image = load_img(content_path)
-style_image = load_img(style_path)
+content_image = load_img((content_path))
+style_image = load_img((style_path))
 
 plt.subplot(1, 2, 1)
-imshow(content_path, 'Content Image')
+imshow(content_image, 'Content Image')
 
 plt.subplot(1, 2, 2)
-imshow(style_path, 'Style Image')
+imshow(style_image, 'Style Image')
 
 import tensorflow_hub as hub
 hub_module = hub.load('https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/1')

@@ -9,13 +9,15 @@ mpl.rcParams['axes.grid'] = False
 
 import numpy as np
 import PIL.Image
+from PIL import Image, ImageCms
 import time
 import functools
+from skimage import data, io, color
 
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
-dim_limit = 2048
-epoch_count = 10
+dim_limit = 512
+epoch_count = 2
 
 
 def tensor_to_image(tensor):
@@ -24,7 +26,7 @@ def tensor_to_image(tensor):
     if np.ndim(tensor) > 3:
         assert tensor.shape[0] == 1
         tensor = tensor[0]
-    return PIL.Image.fromarray(tensor, "RGB")
+    return PIL.Image.fromarray(tensor)
 
 
 content_path = "abandoned.jpg"
@@ -328,13 +330,23 @@ print("Total time: {:.1f}".format(end - start))
 
 file_name = 'stylized-image.png'
 
-styled_image = tensor_to_image(image)
 
+def lab_conversion(image):
+    img = np.array(image)
+    img = color.rgb2lab(img)
+    return Image.fromarray(img, "LAB")
+
+
+styled_image = tensor_to_image(image)
+styled_image.convert("RGB")
 content_height, content_width = styled_image.size
 
 content_color = PIL.Image.open(content_path)
 content_color = content_color.resize((content_height, content_width))
-styled_image.convert("RGBA")
-styled_image.paste(content_color)
+styled_image = lab_conversion(styled_image)
+content_color = lab_conversion(content_color)
+L, A, B, = content_color.split()
+L, z, x, = styled_image.split()
+finished_image = Image.merge("LAB", (L, A, B))
 
-styled_image.save(file_name)
+finished_image.save(file_name)

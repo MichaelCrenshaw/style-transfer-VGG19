@@ -14,8 +14,8 @@ import functools
 
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
-dim_limit = 512
-epoch_count = 1
+dim_limit = 2048
+epoch_count = 10
 
 
 def tensor_to_image(tensor):
@@ -335,7 +335,6 @@ content_height, content_width = styled_image.size
 content_color = PIL.Image.open(content_path)
 content_color = content_color.resize((content_height, content_width))
 styled_image.convert("RGBA")
-styled_image = styled_image.paste(content_color)
+styled_image.paste(content_color)
 
-
-Image.open(styled_image).save(file_name)
+styled_image.save(file_name)

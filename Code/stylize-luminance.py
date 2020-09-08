@@ -330,23 +330,22 @@ print("Total time: {:.1f}".format(end - start))
 
 file_name = 'stylized-image.png'
 
-
-def lab_conversion(image):
-    img = np.array(image)
-    img = color.rgb2lab(img)
-    return Image.fromarray(img, "LAB")
-
-
 styled_image = tensor_to_image(image)
-styled_image.convert("RGB")
 content_height, content_width = styled_image.size
+
+srgb_p = ImageCms.createProfile("sRGB")
+lab_p  = ImageCms.createProfile("LAB")
+
+lab2rgb = ImageCms.buildTransformFromOpenProfiles(lab_p, srgb_p, "LAB", "RGB")
+rgb2lab = ImageCms.buildTransformFromOpenProfiles(srgb_p, lab_p, "RGB", "LAB")
 
 content_color = PIL.Image.open(content_path)
 content_color = content_color.resize((content_height, content_width))
-styled_image = lab_conversion(styled_image)
-content_color = lab_conversion(content_color)
+content_color = ImageCms.applyTransform(content_color, rgb2lab)
+styled_image = ImageCms.applyTransform(styled_image, rgb2lab)
 L, A, B, = content_color.split()
 L, z, x, = styled_image.split()
-finished_image = Image.merge("LAB", (L, A, B))
+finished_image = Image.merge("LAB", (L,A,B))
+finished_image = ImageCms.applyTransform(finished_image, lab2rgb)
 
 finished_image.save(file_name)

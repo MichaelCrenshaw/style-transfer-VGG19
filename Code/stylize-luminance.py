@@ -15,7 +15,7 @@ import functools
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
 dim_limit = 512
-epoch_count = 5
+epoch_count = 1
 
 
 def tensor_to_image(tensor):
@@ -24,7 +24,7 @@ def tensor_to_image(tensor):
     if np.ndim(tensor) > 3:
         assert tensor.shape[0] == 1
         tensor = tensor[0]
-    return PIL.Image.fromarray(tensor)
+    return PIL.Image.fromarray(tensor, "RGB")
 
 
 content_path = "abandoned.jpg"
@@ -37,23 +37,6 @@ def load_img(path_to_img):
     img = tf.image.decode_image(img, channels=3)
     img = tf.image.rgb_to_grayscale(img)
     img = tf.image.grayscale_to_rgb(img)
-    img = tf.image.convert_image_dtype(img, tf.float32)
-
-    shape = tf.cast(tf.shape(img)[:-1], tf.float32)
-    long_dim = max(shape)
-    scale = max_dim / long_dim
-
-    new_shape = tf.cast(shape * scale, tf.int32)
-
-    img = tf.image.resize(img, new_shape)
-    img = img[tf.newaxis, :]
-    return img
-
-
-def load_img_colored(path_to_img):
-    max_dim = dim_limit
-    img = tf.io.read_file(path_to_img)
-    img = tf.image.decode_image(img, channels=3)
     img = tf.image.convert_image_dtype(img, tf.float32)
 
     shape = tf.cast(tf.shape(img)[:-1], tf.float32)
@@ -346,7 +329,13 @@ print("Total time: {:.1f}".format(end - start))
 file_name = 'stylized-image.png'
 
 styled_image = tensor_to_image(image)
-content_color = PIL.Image.open(content_path)
-stylized_image = styled_image.paste(content_color, "L")
 
-stylized_image.save(file_name)
+content_height, content_width = styled_image.size
+
+content_color = PIL.Image.open(content_path)
+content_color = content_color.resize((content_height, content_width))
+styled_image.convert("RGBA")
+styled_image = styled_image.paste(content_color)
+
+
+Image.open(styled_image).save(file_name)

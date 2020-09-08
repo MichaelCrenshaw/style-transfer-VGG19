@@ -26,9 +26,8 @@ content_path = "abandoned.jpg"
 style_path = "absmount.jpg"
 
 
-def load_img(path_to_img):
+def load_img(img):
     max_dim = 512
-    img = tf.io.read_file(path_to_img)
     img = tf.image.decode_image(img, channels=3)
     img = tf.image.convert_image_dtype(img, tf.float32)
 
@@ -51,9 +50,14 @@ def imshow(image, title=None):
     if title:
         plt.title(title)
 
+def decolorize(image_path):
+    img = Image.open(image_path)
+    img = img
 
 content_image = load_img((content_path))
 style_image = load_img((style_path))
+content_image = decolorize(content_image)
+style_image = decolorize(style_image)
 
 plt.subplot(1, 2, 1)
 imshow(content_image, 'Content Image')
@@ -218,12 +222,6 @@ def train_step(image):
     opt.apply_gradients([(grad, image)])
     image.assign(clip_0_1(image))
 
-
-train_step(image)
-train_step(image)
-train_step(image)
-tensor_to_image(image)
-
 import time
 
 start = time.time()
@@ -324,6 +322,8 @@ for n in range(epochs):
 end = time.time()
 print("Total time: {:.1f}".format(end - start))
 
+
+
 file_name = 'stylized-image.png'
 tensor_to_image(image).save(file_name)
 
@@ -333,5 +333,3 @@ except ImportError:
     pass
 else:
     files.download(file_name)
-
-plt.savefig("input.png")

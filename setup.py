@@ -7,5 +7,6 @@ setup(name='Main',
           'tensorflow-hub',
           'matplotlib',
           'numpy',
+          'pillow'
       ],
       zip_safe=False)

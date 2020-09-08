@@ -14,7 +14,9 @@ import functools
 
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
-dim_limit = 2048
+dim_limit = 512
+epoch_count = 5
+
 
 def tensor_to_image(tensor):
     tensor = tensor * 255
@@ -35,6 +37,23 @@ def load_img(path_to_img):
     img = tf.image.decode_image(img, channels=3)
     img = tf.image.rgb_to_grayscale(img)
     img = tf.image.grayscale_to_rgb(img)
+    img = tf.image.convert_image_dtype(img, tf.float32)
+
+    shape = tf.cast(tf.shape(img)[:-1], tf.float32)
+    long_dim = max(shape)
+    scale = max_dim / long_dim
+
+    new_shape = tf.cast(shape * scale, tf.int32)
+
+    img = tf.image.resize(img, new_shape)
+    img = img[tf.newaxis, :]
+    return img
+
+
+def load_img_colored(path_to_img):
+    max_dim = dim_limit
+    img = tf.io.read_file(path_to_img)
+    img = tf.image.decode_image(img, channels=3)
     img = tf.image.convert_image_dtype(img, tf.float32)
 
     shape = tf.cast(tf.shape(img)[:-1], tf.float32)
@@ -223,11 +242,12 @@ def train_step(image):
     opt.apply_gradients([(grad, image)])
     image.assign(clip_0_1(image))
 
+
 import time
 
 start = time.time()
 
-epochs = 10
+epochs = epoch_count
 steps_per_epoch = 100
 
 step = 0
@@ -307,7 +327,7 @@ import time
 
 start = time.time()
 
-epochs = 10
+epochs = epoch_count
 steps_per_epoch = 100
 
 step = 0
@@ -327,6 +347,6 @@ file_name = 'stylized-image.png'
 
 styled_image = tensor_to_image(image)
 content_color = PIL.Image.open(content_path)
-stylized_image = style_image.paste(content_color, "L")
+stylized_image = styled_image.paste(content_color, "L")
 
 stylized_image.save(file_name)

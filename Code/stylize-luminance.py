@@ -16,8 +16,8 @@ from skimage import data, io, color
 
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
-dim_limit = 512
-epoch_count = 2
+dim_limit = 2048
+epoch_count = 10
 
 
 def tensor_to_image(tensor):

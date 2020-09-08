@@ -344,3 +344,5 @@ file_name = 'stylized-image.png'
 styled_image = tensor_to_image(image)
 content_color = PIL.Image.open(content_path)
 stylized_image = style_image.paste(content_image, "L")
+
+stylized_image.save(file_name)
